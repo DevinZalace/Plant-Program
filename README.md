@@ -1,5 +1,3 @@
-# Plant-Program
-A program that provides random ornamental plants with information about them
 # Plant Program
 
 Plant Program is a C++ console application for exploring a catalog of 60 ornamental plants. Users can browse the complete catalog, display a random plant, search by plant family, or select a plant by number.
