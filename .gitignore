@@ -13,3 +13,7 @@
 .idea/
 .DS_Store
 Thumbs.db
+
+# Local build output
+plant-program
+Makefile.win
