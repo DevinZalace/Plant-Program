@@ -1,0 +1,15 @@
+# Compiled files
+*.exe
+*.o
+*.obj
+*.gch
+
+# Dev-C++ project artifacts
+*.dev
+*.layout
+
+# Editor and OS files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
