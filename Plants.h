@@ -30,5 +30,8 @@ public:
 	int getPlantCount() const;
 
 private:
+	// Print the full details for a specific plant record.
+	void printPlantDetails(const Plant& plant);
+
 	std::vector<Plant> plants;
 };

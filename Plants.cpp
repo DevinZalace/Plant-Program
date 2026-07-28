@@ -56,15 +56,8 @@ int Plants::getPlantCount() const {
 	return static_cast<int>(plants.size());
 }
 
-// Display all fields for a single plant entry at the requested index.
-void Plants::getPlantStringInfo(int i) {
-	// Guard against invalid indices before accessing the vector.
-	if (i < 0 || i >= static_cast<int>(plants.size())) {
-		std::cout << "Plant index is out of range.\n";
-		return;
-	}
-
-	const Plant& plant = plants[i];
+// Print the full details for a specific plant record.
+void Plants::printPlantDetails(const Plant& plant) {
 	std::cout << "Your plants name followed by type, light level, water level, coloring possibilities, toxicity, and general notes.\n";
 	std::cout << "Plant Family: " << plant.name << " \n";
 	std::cout << "Plant Type: " << plant.type << " \n";
@@ -73,6 +66,17 @@ void Plants::getPlantStringInfo(int i) {
 	std::cout << "Colors: " << plant.colors << " \n";
 	std::cout << "Toxicity: " << plant.toxicity << " \n";
 	std::cout << "Notes: " << plant.notes << " \n";
+}
+
+// Display all fields for a single plant entry at the requested index.
+void Plants::getPlantStringInfo(int i) {
+	// Guard against invalid indices before accessing the vector.
+	if (i < 0 || i >= static_cast<int>(plants.size())) {
+		std::cout << "Plant index is out of range.\n";
+		return;
+	}
+
+	printPlantDetails(plants[i]);
 }
 
 // Print every plant record stored in the dataset.
@@ -89,14 +93,7 @@ void Plants::getAllPlants() {
 void Plants::getPlantFamily(std::string userSearch) {
 	for (int i = 0; i < static_cast<int>(plants.size()); ++i) {
 		if (userSearch == plants[i].name) {
-			std::cout << "Your plants name followed by type, light level, water level, coloring possibilities, toxicity, and general notes.\n";
-			std::cout << "Plant Family: " << plants[i].name << " \n";
-			std::cout << "Plant Type: " << plants[i].type << " \n";
-			std::cout << "Light Level: " << plants[i].light << " \n";
-			std::cout << "Water Level: " << plants[i].water << " \n";
-			std::cout << "Colors: " << plants[i].colors << " \n";
-			std::cout << "Toxicity: " << plants[i].toxicity << " \n";
-			std::cout << "Notes: " << plants[i].notes << " \n";
+			printPlantDetails(plants[i]);
 			std::cout << "Enter another or 1 to quit.\n";
 			return;
 		}

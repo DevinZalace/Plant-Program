@@ -1,16 +1,35 @@
+#include <exception>
 #include <iostream>
 #include <limits>
+#include <random>
 #include <string>
 #include "Plants.h"
-#include <cstdlib>
-#include <exception>
+
+// Read a validated integer within the requested range.
+int readValidatedInt(const std::string& prompt, int minValue, int maxValue) {
+	int value;
+
+	while (true) {
+		std::cout << prompt;
+		if (std::cin >> value && value >= minValue && value <= maxValue) {
+			return value;
+		}
+
+		std::cout << "Please enter a valid number " << minValue << "-" << maxValue << ".\n";
+		std::cin.clear();
+		std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+	}
+}
 
 // Handle the action selected from the primary menu.
 void handleMenuChoice(Plants& catalog, const std::string& choice) {
 	const int plantCount = catalog.getPlantCount();
 
 	if (choice == "1") {
-		const int randomIndex = rand() % plantCount;
+		std::random_device seed;
+		std::mt19937 generator(seed());
+		std::uniform_int_distribution<int> distribution(0, plantCount - 1);
+		const int randomIndex = distribution(generator);
 		std::cout << "Your random number is " << randomIndex << std::endl;
 		catalog.getPlantStringInfo(randomIndex);
 		std::cout << std::endl;
@@ -25,14 +44,11 @@ void handleMenuChoice(Plants& catalog, const std::string& choice) {
 		}
 	}
 	else if (choice == "3") {
-		int plantNumber;
-		std::cout << "Please enter a number 1-" << plantCount << " to select a plant from the list.\n";
-		std::cin >> plantNumber;
-
-		while ((plantNumber > plantCount) || (plantNumber < 1)) {
-			std::cout << "Please enter a valid number 1-" << plantCount << ".\n";
-			std::cin >> plantNumber;
-		}
+		const int plantNumber = readValidatedInt(
+			"Please enter a number 1-" + std::to_string(plantCount) + " to select a plant from the list.\n",
+			1,
+			plantCount
+		);
 
 		catalog.getPlantStringInfo(plantNumber - 1);
 	}
