@@ -1,8 +1,7 @@
 #include <string>
-#include <iostream>
-#include <fstream>
 #include <vector>
 
+// Represents a single plant record loaded from the data file.
 struct Plant {
 	std::string name;
 	std::string type;
@@ -13,10 +12,10 @@ struct Plant {
 	std::string notes;
 };
 
-// Represents the plant lookup system and its data access methods.
+// Stores the plant catalog in memory and provides lookup and display helpers.
 class Plants {
 public:
-	Plants();
+	explicit Plants(const std::string& filename);
 
 	// Display information for one plant entry.
 	void getPlantStringInfo(int i);
@@ -32,5 +31,4 @@ public:
 
 private:
 	std::vector<Plant> plants;
-	std::ifstream inFS;
 };

@@ -1,128 +1,94 @@
 #include <iostream>
+#include <limits>
 #include <string>
-#include <fstream>
 #include "Plants.h"
 #include <cstdlib>
+#include <exception>
+
+// Handle the action selected from the primary menu.
+void handleMenuChoice(Plants& catalog, const std::string& choice) {
+	const int plantCount = catalog.getPlantCount();
+
+	if (choice == "1") {
+		const int randomIndex = rand() % plantCount;
+		std::cout << "Your random number is " << randomIndex << std::endl;
+		catalog.getPlantStringInfo(randomIndex);
+		std::cout << std::endl;
+	}
+	else if (choice == "2") {
+		std::string search;
+		std::cout << "Please search by Plant Name, sorry must match identically. Enter 1 to quit.\n";
+
+		while (search != "1") {
+			std::cin >> search;
+			catalog.getPlantFamily(search);
+		}
+	}
+	else if (choice == "3") {
+		int plantNumber;
+		std::cout << "Please enter a number 1-" << plantCount << " to select a plant from the list.\n";
+		std::cin >> plantNumber;
+
+		while ((plantNumber > plantCount) || (plantNumber < 1)) {
+			std::cout << "Please enter a valid number 1-" << plantCount << ".\n";
+			std::cin >> plantNumber;
+		}
+
+		catalog.getPlantStringInfo(plantNumber - 1);
+	}
+}
 
 // Entry point for the plant information console application.
 int main() {
-	std::ifstream inFS;
-	std::string userAnswer;
-	Plants userChoice;
-	int randNum, plantNum;
-	const int plantCount = userChoice.getPlantCount();
+	try {
+		std::string userAnswer;
+		Plants catalog("stringPlantList.txt");
 
-	if (plantCount == 0) {
-		std::cout << "No plants were loaded from the data file." << std::endl;
-		return 0;
-	}
+		// Ask whether the user wants to view the complete plant list first.
+		std::cout << "Do you want to see the full plant list first?\n" << "Enter \"y\" or \"n\" \n";
+		std::cin >> userAnswer; // Collect the user's initial choice.
 
-	// Attempt to open the plant data file before the program begins.
-	inFS.open("stringPlantList.txt");
-	if (!inFS.is_open()) {
-		std::cout << "Could not open file stringPlantList.txt." << std::endl;
-	}
-
-	// Ask whether the user wants to view the complete plant list first.
-	std::cout << "Do you want to see the full plant list first?\n" << "Enter \"y\" or \"n\" \n";
-	std::cin >> userAnswer; // Collect the user's initial choice.
-
-	// Validate the user's response until it is accepted.
-	while ((userAnswer != "y") && (userAnswer != "n")) {
-		std::cout << "Please enter the correct character under our parameters. ";
-		std::cin >> userAnswer;
-	}
-
-	if (userAnswer == "y") {
-		userChoice.getAllPlants();
-		std::cout << std::endl;
-		return 0;
-	}
-
-	if (userAnswer == "n") {
-		std::cout << "Would you like a random plant(1) or to search by Plant Family(2) or select by numerical order(3).\n" << "Enter \"1\" or \"2\" or \"3\"\n";
-		std::cin >> userAnswer; // Collect the main navigation choice.
-	}
-
-	// Validate the selection for the primary menu.
-	while ((userAnswer != "1") && (userAnswer != "2") && (userAnswer != "3")) {
-		std::cout << "Please enter the correct character under our parameters. ";
-		std::cin >> userAnswer;
-	}
-
-	if (userAnswer == "1") {
-		randNum = rand() % plantCount;
-		std::cout << "Your random number is " << randNum << std::endl;
-		userChoice.getPlantStringInfo(randNum);
-		std::cout << std::endl;
-	}
-	else if (userAnswer == "2") {
-		std::cout << "Please search by Plant Name, sorry must match identically. Enter 1 to quit.\n";
-		userAnswer = "0";
-		while (userAnswer != "1") {
+		// Validate the user's response until it is accepted.
+		while ((userAnswer != "y") && (userAnswer != "n")) {
+			std::cout << "Please enter the correct character under our parameters. ";
 			std::cin >> userAnswer;
-			userChoice.getPlantFamily(userAnswer);
 		}
-	}
-	else if (userAnswer == "3") {
-		std::cout << "Please enter a number 1-" << plantCount << " to select a plant from the list.\n";
-		std::cin >> plantNum;
-		while ((plantNum > plantCount) || (plantNum < 1)) {
-			std::cout << "Please enter a valid number 1-" << plantCount << ".\n";
-			std::cin >> plantNum;
+
+		if (userAnswer == "y") {
+			catalog.getAllPlants();
+			std::cout << "\nPress Enter to continue...";
+			std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+			std::cin.get();
+			userAnswer = "y";
 		}
-		userChoice.getPlantStringInfo(plantNum - 1);
-	}
 
-	// Offer the user another selection after the first action completes.
-	std::cout << "Would you like another?\n" << "Enter \"y\" or \"n\" \n";
-	userAnswer = "0";
-	std::cin >> userAnswer;
+		do {
+			std::cout << "Would you like a random plant(1) or to search by Plant Family(2) or select by numerical order(3).\n" << "Enter \"1\" or \"2\" or \"3\"\n";
+			std::cin >> userAnswer; // Collect the main navigation choice.
 
-	while ((userAnswer != "y") && (userAnswer != "n")) {
-		std::cout << "Please enter the correct character under our parameters. ";
-		std::cin >> userAnswer;
-	}
+			// Validate the selection for the primary menu.
+			while ((userAnswer != "1") && (userAnswer != "2") && (userAnswer != "3")) {
+				std::cout << "Please enter the correct character under our parameters. ";
+				std::cin >> userAnswer;
+			}
 
-	if (userAnswer == "n") {
+			handleMenuChoice(catalog, userAnswer);
+
+			// Ask whether the user wants to return to the primary menu.
+			std::cout << "Would you like another?\n" << "Enter \"y\" or \"n\" \n";
+			std::cin >> userAnswer;
+
+			while ((userAnswer != "y") && (userAnswer != "n")) {
+				std::cout << "Please enter the correct character under our parameters. ";
+				std::cin >> userAnswer;
+			}
+		} while (userAnswer == "y");
+
 		std::cout << "Thank you for your interest!\n";
-		return 0;
 	}
-
-	if (userAnswer == "y") {
-		std::cout << "Would you like a random plant(1) or to search by Plant Family(2) or select by numerical order(3).\n" << "Enter \"1\" or \"2\" or \"3\"\n";
-		std::cin >> userAnswer;
+	catch (const std::exception& error) {
+		std::cerr << "Plant program could not start: " << error.what() << '\n';
+		return 1;
 	}
-
-	while ((userAnswer != "1") && (userAnswer != "2") && (userAnswer != "3")) {
-		std::cout << "Please enter the correct character under our parameters. ";
-		std::cin >> userAnswer;
-	}
-
-	if (userAnswer == "1") {
-		randNum = rand() % plantCount;
-		std::cout << "Your random number is " << randNum << std::endl;
-		userChoice.getPlantStringInfo(randNum);
-		std::cout << std::endl;
-	}
-	else if (userAnswer == "2") {
-		std::cout << "Please search by Plant Name, sorry must match identically. Enter 1 to quit.\n";
-		userAnswer = "0";
-		while (userAnswer != "1") {
-			std::cin >> userAnswer;
-			userChoice.getPlantFamily(userAnswer);
-		}
-	}
-	else if (userAnswer == "3") {
-		std::cout << "Please enter a number 1-" << plantCount << " to select a plant from the list.\n";
-		std::cin >> plantNum;
-		while ((plantNum > plantCount) || (plantNum < 1)) {
-			std::cout << "Please enter a valid number 1-" << plantCount << ".\n";
-			std::cin >> plantNum;
-		}
-		userChoice.getPlantStringInfo(plantNum - 1);
-	}
-
-	std::cout << "Thank you for your interest!\n";
 }
 

@@ -1,29 +1,40 @@
 #include <string>
 #include <iostream>
 #include "Plants.h"
-#include <cstdlib>
-#include <time.h>
 #include <fstream>
+#include <stdexcept>
 #include <vector>
 
-// Constructor loads the plant dataset from the text file into memory.
-Plants::Plants() {
+// Load the plant dataset from disk and build the in-memory catalog.
+Plants::Plants(const std::string& filename) {
 	std::string lineString;
 	std::vector<std::string> lines;
+	std::ifstream inputFile(filename);
 
-	inFS.open("stringPlantList.txt");
-	if (!inFS.is_open()) {
-		std::cerr << "Could not open file stringPlantList.txt." << std::endl;
-		return;
+	if (!inputFile.is_open()) {
+		throw std::runtime_error("Could not open data file: " + filename);
 	}
 
-	while (std::getline(inFS, lineString)) {
+	while (std::getline(inputFile, lineString)) {
 		lines.push_back(lineString);
 	}
 
-	inFS.close();
+	if (inputFile.bad()) {
+		throw std::runtime_error("An error occurred while reading: " + filename);
+	}
 
+	// Each plant entry consists of seven text fields in the data file.
 	const int fieldsPerPlant = 7;
+
+	if (lines.empty()) {
+		throw std::runtime_error("No plant records were found in: " + filename);
+	}
+
+	if (lines.size() % fieldsPerPlant != 0) {
+		throw std::runtime_error("Plant data is incomplete or malformed in: " + filename);
+	}
+
+	// The number of plants is derived from the file contents rather than a hard-coded constant.
 	const int plantCount = static_cast<int>(lines.size() / fieldsPerPlant);
 	plants.reserve(plantCount);
 
@@ -47,6 +58,7 @@ int Plants::getPlantCount() const {
 
 // Display all fields for a single plant entry at the requested index.
 void Plants::getPlantStringInfo(int i) {
+	// Guard against invalid indices before accessing the vector.
 	if (i < 0 || i >= static_cast<int>(plants.size())) {
 		std::cout << "Plant index is out of range.\n";
 		return;
