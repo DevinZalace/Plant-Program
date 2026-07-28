@@ -1,109 +1,156 @@
 #include <exception>
 #include <iostream>
-#include <limits>
 #include <random>
+#include <sstream>
 #include <string>
 #include "Plants.h"
+#include "TerminalUI.h"
 
-// Read a validated integer within the requested range.
-int readValidatedInt(const std::string& prompt, int minValue, int maxValue) {
-	int value;
+// Show the main navigation screen.
+void printMainMenu(int plantCount) {
+	TerminalUI::clearScreen();
+	TerminalUI::printTitle(
+		"PLANT PROGRAM",
+		"Explore " + std::to_string(plantCount) + " ornamental plants"
+	);
+	TerminalUI::printLine();
+	TerminalUI::printMenuOption("1", "Show me a random plant");
+	TerminalUI::printMenuOption("2", "Search by plant family");
+	TerminalUI::printMenuOption("3", "Select by catalog number");
+	TerminalUI::printMenuOption("4", "Browse the complete catalog");
+	TerminalUI::printMenuOption("Q", "Quit");
+	TerminalUI::printLine();
+	TerminalUI::printBorder('=');
+}
 
+// Read a catalog number without leaving invalid input in the stream.
+bool parseCatalogNumber(const std::string& input, int maxValue, int& value) {
+	std::istringstream inputStream(input);
+	char extraCharacter;
+
+	return inputStream >> value
+		&& value >= 1
+		&& value <= maxValue
+		&& !(inputStream >> extraCharacter);
+}
+
+// Search repeatedly until the user returns to the main menu.
+void showSearch(Plants& catalog) {
 	while (true) {
-		std::cout << prompt;
-		if (std::cin >> value && value >= minValue && value <= maxValue) {
-			return value;
+		TerminalUI::clearScreen();
+		TerminalUI::printTitle("SEARCH", "Plant family names are not case-sensitive");
+		TerminalUI::printLine("Enter a complete plant family name, or B to go back.");
+		TerminalUI::printBorder();
+
+		const std::string search = TerminalUI::trim(TerminalUI::readLine("\nSearch: "));
+		if (TerminalUI::lowercase(search) == "b") {
+			return;
 		}
 
-		std::cout << "Please enter a valid number " << minValue << "-" << maxValue << ".\n";
-		std::cin.clear();
-		std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+		TerminalUI::clearScreen();
+		if (!catalog.getPlantFamily(search)) {
+			TerminalUI::printTitle("NO MATCH");
+			TerminalUI::printLine(
+				"No plant family matched \"" + search + "\".",
+				TerminalUI::red
+			);
+			TerminalUI::printLine("Check the spelling or browse the catalog for available names.");
+			TerminalUI::printBorder();
+		}
+
+		TerminalUI::pause();
 	}
 }
 
-// Handle the action selected from the primary menu.
-void handleMenuChoice(Plants& catalog, const std::string& choice) {
+// Prompt until the user selects a valid catalog number or goes back.
+void showNumberSelection(Plants& catalog) {
 	const int plantCount = catalog.getPlantCount();
 
+	while (true) {
+		TerminalUI::clearScreen();
+		TerminalUI::printTitle(
+			"SELECT BY NUMBER",
+			"Choose a catalog number from 1 to " + std::to_string(plantCount)
+		);
+		TerminalUI::printLine("Enter B to return to the main menu.");
+		TerminalUI::printBorder();
+
+		const std::string input = TerminalUI::trim(TerminalUI::readLine("\nCatalog number: "));
+		if (TerminalUI::lowercase(input) == "b") {
+			return;
+		}
+
+		int plantNumber;
+		if (parseCatalogNumber(input, plantCount, plantNumber)) {
+			TerminalUI::clearScreen();
+			catalog.getPlantStringInfo(plantNumber - 1);
+			TerminalUI::pause();
+			return;
+		}
+
+		std::cout << '\n' << TerminalUI::red
+			<< "Please enter a whole number from 1 to " << plantCount << "."
+			<< TerminalUI::reset << '\n';
+		TerminalUI::pause();
+	}
+}
+
+// Handle the action selected from the main menu.
+void handleMenuChoice(Plants& catalog, const std::string& choice) {
 	if (choice == "1") {
-		std::random_device seed;
-		std::mt19937 generator(seed());
-		std::uniform_int_distribution<int> distribution(0, plantCount - 1);
-		const int randomIndex = distribution(generator);
-		std::cout << "Your random number is " << randomIndex << std::endl;
-		catalog.getPlantStringInfo(randomIndex);
-		std::cout << std::endl;
+		static std::mt19937 generator(std::random_device{}());
+		std::uniform_int_distribution<int> distribution(0, catalog.getPlantCount() - 1);
+
+		TerminalUI::clearScreen();
+		catalog.getPlantStringInfo(distribution(generator));
+		TerminalUI::pause();
 	}
 	else if (choice == "2") {
-		std::string search;
-		std::cout << "Please search by Plant Name, sorry must match identically. Enter 1 to quit.\n";
-
-		while (search != "1") {
-			std::cin >> search;
-			catalog.getPlantFamily(search);
-		}
+		showSearch(catalog);
 	}
 	else if (choice == "3") {
-		const int plantNumber = readValidatedInt(
-			"Please enter a number 1-" + std::to_string(plantCount) + " to select a plant from the list.\n",
-			1,
-			plantCount
-		);
-
-		catalog.getPlantStringInfo(plantNumber - 1);
+		showNumberSelection(catalog);
+	}
+	else if (choice == "4") {
+		TerminalUI::clearScreen();
+		catalog.getAllPlants();
+		TerminalUI::pause();
 	}
 }
 
 // Entry point for the plant information console application.
 int main() {
 	try {
-		std::string userAnswer;
 		Plants catalog("stringPlantList.txt");
 
-		// Ask whether the user wants to view the complete plant list first.
-		std::cout << "Do you want to see the full plant list first?\n" << "Enter \"y\" or \"n\" \n";
-		std::cin >> userAnswer; // Collect the user's initial choice.
+		while (true) {
+			printMainMenu(catalog.getPlantCount());
+			const std::string choice = TerminalUI::lowercase(
+				TerminalUI::trim(TerminalUI::readLine("\nChoose an option: "))
+			);
 
-		// Validate the user's response until it is accepted.
-		while ((userAnswer != "y") && (userAnswer != "n")) {
-			std::cout << "Please enter the correct character under our parameters. ";
-			std::cin >> userAnswer;
-		}
-
-		if (userAnswer == "y") {
-			catalog.getAllPlants();
-			std::cout << "\nPress Enter to continue...";
-			std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-			std::cin.get();
-			userAnswer = "y";
-		}
-
-		do {
-			std::cout << "Would you like a random plant(1) or to search by Plant Family(2) or select by numerical order(3).\n" << "Enter \"1\" or \"2\" or \"3\"\n";
-			std::cin >> userAnswer; // Collect the main navigation choice.
-
-			// Validate the selection for the primary menu.
-			while ((userAnswer != "1") && (userAnswer != "2") && (userAnswer != "3")) {
-				std::cout << "Please enter the correct character under our parameters. ";
-				std::cin >> userAnswer;
+			if (choice == "q") {
+				break;
 			}
 
-			handleMenuChoice(catalog, userAnswer);
-
-			// Ask whether the user wants to return to the primary menu.
-			std::cout << "Would you like another?\n" << "Enter \"y\" or \"n\" \n";
-			std::cin >> userAnswer;
-
-			while ((userAnswer != "y") && (userAnswer != "n")) {
-				std::cout << "Please enter the correct character under our parameters. ";
-				std::cin >> userAnswer;
+			if (choice == "1" || choice == "2" || choice == "3" || choice == "4") {
+				handleMenuChoice(catalog, choice);
 			}
-		} while (userAnswer == "y");
+			else {
+				std::cout << '\n' << TerminalUI::red
+					<< "Please choose 1, 2, 3, 4, or Q."
+					<< TerminalUI::reset << '\n';
+				TerminalUI::pause();
+			}
+		}
 
-		std::cout << "Thank you for your interest!\n";
+		TerminalUI::clearScreen();
+		TerminalUI::printTitle("THANK YOU", "Happy growing!");
 	}
 	catch (const std::exception& error) {
-		std::cerr << "Plant program could not start: " << error.what() << '\n';
+		std::cerr << TerminalUI::red
+			<< "Plant program could not start: " << error.what()
+			<< TerminalUI::reset << '\n';
 		return 1;
 	}
 }

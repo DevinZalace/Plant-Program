@@ -1,7 +1,7 @@
 #include <string>
 #include <vector>
 
-// Represents a single plant record loaded from the data file.
+// Single plant record loaded from the data file.
 struct Plant {
 	std::string name;
 	std::string type;
@@ -12,7 +12,7 @@ struct Plant {
 	std::string notes;
 };
 
-// Stores the plant catalog in memory and provides lookup and display helpers.
+// In-memory catalog of plants with lookup and display helpers.
 class Plants {
 public:
 	explicit Plants(const std::string& filename);
@@ -24,7 +24,7 @@ public:
 	void getAllPlants();
 
 	// Search for a plant by family name and show its details.
-	void getPlantFamily(std::string userSearch);
+	bool getPlantFamily(const std::string& userSearch);
 
 	// Return the number of plants loaded from the data file.
 	int getPlantCount() const;

@@ -1,11 +1,25 @@
+#include <algorithm>
+#include <cctype>
+#include <iomanip>
 #include <string>
 #include <iostream>
 #include "Plants.h"
+#include "TerminalUI.h"
 #include <fstream>
+#include <sstream>
 #include <stdexcept>
 #include <vector>
 
-// Load the plant dataset from disk and build the in-memory catalog.
+namespace {
+	std::string lowercase(std::string text) {
+		std::transform(text.begin(), text.end(), text.begin(), [](unsigned char character) {
+			return static_cast<char>(std::tolower(character));
+		});
+		return text;
+	}
+}
+
+// Load the plant catalog from disk into memory.
 Plants::Plants(const std::string& filename) {
 	std::string lineString;
 	std::vector<std::string> lines;
@@ -16,6 +30,9 @@ Plants::Plants(const std::string& filename) {
 	}
 
 	while (std::getline(inputFile, lineString)) {
+		if (!lineString.empty() && lineString.back() == '\r') {
+			lineString.pop_back();
+		}
 		lines.push_back(lineString);
 	}
 
@@ -23,7 +40,7 @@ Plants::Plants(const std::string& filename) {
 		throw std::runtime_error("An error occurred while reading: " + filename);
 	}
 
-	// Each plant entry consists of seven text fields in the data file.
+	// Each plant entry spans seven text fields in the data file.
 	const int fieldsPerPlant = 7;
 
 	if (lines.empty()) {
@@ -34,7 +51,7 @@ Plants::Plants(const std::string& filename) {
 		throw std::runtime_error("Plant data is incomplete or malformed in: " + filename);
 	}
 
-	// The number of plants is derived from the file contents rather than a hard-coded constant.
+	// Determine the number of plants from the file contents.
 	const int plantCount = static_cast<int>(lines.size() / fieldsPerPlant);
 	plants.reserve(plantCount);
 
@@ -56,50 +73,58 @@ int Plants::getPlantCount() const {
 	return static_cast<int>(plants.size());
 }
 
-// Print the full details for a specific plant record.
+// Print the full details for one plant record.
 void Plants::printPlantDetails(const Plant& plant) {
-	std::cout << "Your plants name followed by type, light level, water level, coloring possibilities, toxicity, and general notes.\n";
-	std::cout << "Plant Family: " << plant.name << " \n";
-	std::cout << "Plant Type: " << plant.type << " \n";
-	std::cout << "Light Level: " << plant.light << " \n";
-	std::cout << "Water Level: " << plant.water << " \n";
-	std::cout << "Colors: " << plant.colors << " \n";
-	std::cout << "Toxicity: " << plant.toxicity << " \n";
-	std::cout << "Notes: " << plant.notes << " \n";
+	TerminalUI::printTitle(plant.name, "Plant details");
+	TerminalUI::printField("Type", plant.type);
+	TerminalUI::printField("Light", plant.light);
+	TerminalUI::printField("Water", plant.water);
+	TerminalUI::printField("Colors", plant.colors);
+	TerminalUI::printField("Toxicity", plant.toxicity);
+	TerminalUI::printField("Notes", plant.notes);
+	TerminalUI::printBorder();
 }
 
-// Display all fields for a single plant entry at the requested index.
+// Display the details for the plant at the requested index.
 void Plants::getPlantStringInfo(int i) {
 	// Guard against invalid indices before accessing the vector.
 	if (i < 0 || i >= static_cast<int>(plants.size())) {
-		std::cout << "Plant index is out of range.\n";
+		TerminalUI::printLine("Plant index is out of range.", TerminalUI::red);
 		return;
 	}
 
 	printPlantDetails(plants[i]);
 }
 
-// Print every plant record stored in the dataset.
+// Print every plant record in the catalog.
 void Plants::getAllPlants() {
-	std::cout << "Your plants name followed by type, light level, water level, coloring possibilities, toxicity, and general notes.\n";
+	TerminalUI::printTitle(
+		"PLANT CATALOG",
+		std::to_string(plants.size()) + " plants available"
+	);
+
 	for (int i = 0; i < static_cast<int>(plants.size()); ++i) {
 		const Plant& plant = plants[i];
-		std::cout << plant.name << " " << plant.type << " " << plant.light << " " << plant.water << " " << plant.colors << " " << plant.toxicity << " " << plant.notes << std::endl;
-		std::cout << "\n";
+		std::ostringstream row;
+		row << std::right << std::setw(3) << (i + 1) << ".  "
+			<< std::left << std::setw(18) << plant.name
+			<< plant.type;
+		TerminalUI::printLine(row.str());
 	}
+
+	TerminalUI::printBorder();
 }
 
-// Search for a matching plant family name and display its details.
-void Plants::getPlantFamily(std::string userSearch) {
+// Search for a plant by name and display its details.
+bool Plants::getPlantFamily(const std::string& userSearch) {
+	const std::string normalizedSearch = lowercase(userSearch);
+
 	for (int i = 0; i < static_cast<int>(plants.size()); ++i) {
-		if (userSearch == plants[i].name) {
+		if (normalizedSearch == lowercase(plants[i].name)) {
 			printPlantDetails(plants[i]);
-			std::cout << "Enter another or 1 to quit.\n";
-			return;
+			return true;
 		}
 	}
 
-	if (userSearch != "1") {
-		std::cout << "Please check input spelling and try again\n";
-	}
+	return false;
 }
