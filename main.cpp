@@ -3,103 +3,120 @@
 #include <fstream>
 #include "Plants.h"
 #include <cstdlib>
-using namespace std;
 
-
+// Entry point for the plant information console application.
 int main() {
-	ifstream inFS; // #4 Variables
-	string userAnswer; // #4 Variables
-	Plants userChoice; // #4 Variables
-	int randNum, plantNum; // #4 Variables
+	std::ifstream inFS;
+	std::string userAnswer;
+	Plants userChoice;
+	int randNum, plantNum;
 
-	inFS.open("stringPlantList.txt"); // #6 File I/O
-	if (!inFS.is_open()) { // #9 Control
-		cout << "Could not open file plantList.txt." << endl; // #8 Interaction
+	// Attempt to open the plant data file before the program begins.
+	inFS.open("stringPlantList.txt");
+	if (!inFS.is_open()) {
+		std::cout << "Could not open file plantList.txt." << std::endl;
 	}
-	cout << "Do you want to see the full plant list first?\n" << "Enter \"y\" or \"n\" \n";  // #8 Interaction
-	cin >> userAnswer; // Input for our game
-	while ((userAnswer != "y") && (userAnswer != "n")) { // Processing our userAnswer for validation #9 Control
-		cout << "Please enter the correct character under our parameters. ";
-		cin >> userAnswer; // Reinput if invalid input
-	} // end while
+
+	// Ask whether the user wants to view the complete plant list first.
+	std::cout << "Do you want to see the full plant list first?\n" << "Enter \"y\" or \"n\" \n";
+	std::cin >> userAnswer; // Collect the user's initial choice.
+
+	// Validate the user's response until it is accepted.
+	while ((userAnswer != "y") && (userAnswer != "n")) {
+		std::cout << "Please enter the correct character under our parameters. ";
+		std::cin >> userAnswer;
+	}
 
 	if (userAnswer == "y") {
 		userChoice.getAllPlants();
-		cout << endl;
+		std::cout << std::endl;
 		return 0;
 	}
-	if (userAnswer == "n") { // Process for procedding forward to further user input
-		cout << "Would you like a random plant(1) or to search by Plant Family(2) or select by numerical order(3).\n" << "Enter \"1\" or \"2\" or \"3\"\n"; // #8 Interaction
-		cin >> userAnswer; // Input for our game
-	}
-	while ((userAnswer != "1") && (userAnswer != "2") && (userAnswer != "3")) { // Processing our userAnswer for validation #9 Control
-		cout << "Please enter the correct character under our parameters. "; // #8 Interaction
-		cin >> userAnswer; // Reinput if invalid input
-	} // end while
-	if (userAnswer == "1") {
-		randNum = rand() % 60;
-		cout << "Your random number is " << randNum << endl;  //randomly pulls plant information and displays it #8 Interaction
-		userChoice.getPlantStringInfo(randNum);
-		cout << endl;
-	}
-	else if (userAnswer == "2") {
-		cout << "Please search by Plant Name, sorry must match identically. Enter 1 to quit.\n";
-		userAnswer = "0";
-		while (userAnswer != "1") {
-			cin >> userAnswer;
-			userChoice.getPlantFamily(userAnswer);
-		} // end while
-	}
-	else if (userAnswer == "3") {
-		cout << "Please enter a number 1-60 to select a plant from the list.\n";
-		cin >> plantNum;
-		while ((plantNum > 60) || (plantNum < 1)) {
-			cout << "Please enter a valid number 1-60.\n";
-			cin >> plantNum;
-		} // end while
-		userChoice.getPlantStringInfo(plantNum);
-	}
-	cout << "Would you like another?\n" << "Enter \"y\" or \"n\" \n"; // #8 Interaction
-	userAnswer = "0";
-	cin >> userAnswer; // Input for our game
-	while ((userAnswer != "y") && (userAnswer != "n")) { // Processing our userAnswer for validation #9 Control
-		cout << "Please enter the correct character under our parameters. "; // #8 Interaction
-		cin >> userAnswer; // Reinput if invalid input
-	} // end while
+
 	if (userAnswer == "n") {
-		cout << "Thank you for your interest!\n"; // #8 Interaction
-		return 0;
-	}// end if
-	if (userAnswer == "y") { // Process for procedding forward to further user input
-		cout << "Would you like a random plant(1) or to search by Plant Family(2) or select by numerical order(3).\n" << "Enter \"1\" or \"2\" or \"3\"\n"; // #8 Interaction
-		cin >> userAnswer; // Input for our game
+		std::cout << "Would you like a random plant(1) or to search by Plant Family(2) or select by numerical order(3).\n" << "Enter \"1\" or \"2\" or \"3\"\n";
+		std::cin >> userAnswer; // Collect the main navigation choice.
 	}
-	while ((userAnswer != "1") && (userAnswer != "2") && (userAnswer != "3")) { // Processing our userAnswer for validation #9 Control
-		cout << "Please enter the correct character under our parameters. "; // #8 Interaction
-		cin >> userAnswer; // Reinput if invalid input
-	} // end while
+
+	// Validate the selection for the primary menu.
+	while ((userAnswer != "1") && (userAnswer != "2") && (userAnswer != "3")) {
+		std::cout << "Please enter the correct character under our parameters. ";
+		std::cin >> userAnswer;
+	}
+
 	if (userAnswer == "1") {
 		randNum = rand() % 60;
-		cout << "Your random number is " << randNum << endl;  //randomly pulls plant information and displays it #8 Interaction
+		std::cout << "Your random number is " << randNum << std::endl;
 		userChoice.getPlantStringInfo(randNum);
-		cout << endl;
+		std::cout << std::endl;
 	}
 	else if (userAnswer == "2") {
-		cout << "Please search by Plant Name, sorry must match identically. Enter 1 to quit.\n";
+		std::cout << "Please search by Plant Name, sorry must match identically. Enter 1 to quit.\n";
 		userAnswer = "0";
 		while (userAnswer != "1") {
-			cin >> userAnswer;
+			std::cin >> userAnswer;
 			userChoice.getPlantFamily(userAnswer);
-		} // end while
+		}
 	}
 	else if (userAnswer == "3") {
-		cout << "Please enter a number 1-60 to select a plant from the list.\n";
-		cin >> plantNum;
+		std::cout << "Please enter a number 1-60 to select a plant from the list.\n";
+		std::cin >> plantNum;
 		while ((plantNum > 60) || (plantNum < 1)) {
-			cout << "Please enter a valid number 1-60.\n";
-			cin >> plantNum;
-		} // end while
-		userChoice.getPlantStringInfo(plantNum);
+			std::cout << "Please enter a valid number 1-60.\n";
+			std::cin >> plantNum;
+		}
+		userChoice.getPlantStringInfo(plantNum - 1);
 	}
-	cout << "Thank you for your interest!\n"; // #8 Interaction
-}// end main
+
+	// Offer the user another selection after the first action completes.
+	std::cout << "Would you like another?\n" << "Enter \"y\" or \"n\" \n";
+	userAnswer = "0";
+	std::cin >> userAnswer;
+
+	while ((userAnswer != "y") && (userAnswer != "n")) {
+		std::cout << "Please enter the correct character under our parameters. ";
+		std::cin >> userAnswer;
+	}
+
+	if (userAnswer == "n") {
+		std::cout << "Thank you for your interest!\n";
+		return 0;
+	}
+
+	if (userAnswer == "y") {
+		std::cout << "Would you like a random plant(1) or to search by Plant Family(2) or select by numerical order(3).\n" << "Enter \"1\" or \"2\" or \"3\"\n";
+		std::cin >> userAnswer;
+	}
+
+	while ((userAnswer != "1") && (userAnswer != "2") && (userAnswer != "3")) {
+		std::cout << "Please enter the correct character under our parameters. ";
+		std::cin >> userAnswer;
+	}
+
+	if (userAnswer == "1") {
+		randNum = rand() % 60;
+		std::cout << "Your random number is " << randNum << std::endl;
+		userChoice.getPlantStringInfo(randNum);
+		std::cout << std::endl;
+	}
+	else if (userAnswer == "2") {
+		std::cout << "Please search by Plant Name, sorry must match identically. Enter 1 to quit.\n";
+		userAnswer = "0";
+		while (userAnswer != "1") {
+			std::cin >> userAnswer;
+			userChoice.getPlantFamily(userAnswer);
+		}
+	}
+	else if (userAnswer == "3") {
+		std::cout << "Please enter a number 1-60 to select a plant from the list.\n";
+		std::cin >> plantNum;
+		while ((plantNum > 60) || (plantNum < 1)) {
+			std::cout << "Please enter a valid number 1-60.\n";
+			std::cin >> plantNum;
+		}
+		userChoice.getPlantStringInfo(plantNum - 1);
+	}
+
+	std::cout << "Thank you for your interest!\n";
+}
+
