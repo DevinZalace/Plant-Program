@@ -10,11 +10,17 @@ int main() {
 	std::string userAnswer;
 	Plants userChoice;
 	int randNum, plantNum;
+	const int plantCount = userChoice.getPlantCount();
+
+	if (plantCount == 0) {
+		std::cout << "No plants were loaded from the data file." << std::endl;
+		return 0;
+	}
 
 	// Attempt to open the plant data file before the program begins.
 	inFS.open("stringPlantList.txt");
 	if (!inFS.is_open()) {
-		std::cout << "Could not open file plantList.txt." << std::endl;
+		std::cout << "Could not open file stringPlantList.txt." << std::endl;
 	}
 
 	// Ask whether the user wants to view the complete plant list first.
@@ -45,7 +51,7 @@ int main() {
 	}
 
 	if (userAnswer == "1") {
-		randNum = rand() % 60;
+		randNum = rand() % plantCount;
 		std::cout << "Your random number is " << randNum << std::endl;
 		userChoice.getPlantStringInfo(randNum);
 		std::cout << std::endl;
@@ -59,10 +65,10 @@ int main() {
 		}
 	}
 	else if (userAnswer == "3") {
-		std::cout << "Please enter a number 1-60 to select a plant from the list.\n";
+		std::cout << "Please enter a number 1-" << plantCount << " to select a plant from the list.\n";
 		std::cin >> plantNum;
-		while ((plantNum > 60) || (plantNum < 1)) {
-			std::cout << "Please enter a valid number 1-60.\n";
+		while ((plantNum > plantCount) || (plantNum < 1)) {
+			std::cout << "Please enter a valid number 1-" << plantCount << ".\n";
 			std::cin >> plantNum;
 		}
 		userChoice.getPlantStringInfo(plantNum - 1);
@@ -94,7 +100,7 @@ int main() {
 	}
 
 	if (userAnswer == "1") {
-		randNum = rand() % 60;
+		randNum = rand() % plantCount;
 		std::cout << "Your random number is " << randNum << std::endl;
 		userChoice.getPlantStringInfo(randNum);
 		std::cout << std::endl;
@@ -108,10 +114,10 @@ int main() {
 		}
 	}
 	else if (userAnswer == "3") {
-		std::cout << "Please enter a number 1-60 to select a plant from the list.\n";
+		std::cout << "Please enter a number 1-" << plantCount << " to select a plant from the list.\n";
 		std::cin >> plantNum;
-		while ((plantNum > 60) || (plantNum < 1)) {
-			std::cout << "Please enter a valid number 1-60.\n";
+		while ((plantNum > plantCount) || (plantNum < 1)) {
+			std::cout << "Please enter a valid number 1-" << plantCount << ".\n";
 			std::cin >> plantNum;
 		}
 		userChoice.getPlantStringInfo(plantNum - 1);
