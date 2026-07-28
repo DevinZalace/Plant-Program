@@ -5,66 +5,59 @@
 #include <time.h>
 #include <fstream>
 
-using namespace std;
-
-
-
+// Constructor loads the plant dataset from the text file into memory.
 Plants::Plants() {
+	std::string lineString;
 
-	string lineString; // #4 Variables
-
-	inFS.open("stringPlantList.txt"); // #6 File I/O
-	for (int i = 0; i < 60; ++i) {  // #7 Iteration (loops)
-		for (int j = 0; j < 7; ++j) { // #7 Iteration (loops)
-			getline(inFS, lineString); // #6 File I/O
-			plantStringInfo[i][j] = lineString; // #5 Arrays
+	inFS.open("stringPlantList.txt");
+	for (int i = 0; i < 60; ++i) {
+		for (int j = 0; j < 7; ++j) {
+			std::getline(inFS, lineString);
+			plantStringInfo[i][j] = lineString;
 		}
 	}
+}
 
-}// end constructor
-
+// Display all fields for a single plant entry at the requested index.
 void Plants::getPlantStringInfo(int i) {
-	cout << "Your plants name followed by type, light level, water level, coloring possibilities, toxicity, and general notes.\n";
-	cout << "Plant Family: " << plantStringInfo[i][0] << " \n";
-	cout << "Plant Type: " << plantStringInfo[i][1] << " \n";
-	cout << "Light Level: " << plantStringInfo[i][2] << " \n";
-	cout << "Water Level: " << plantStringInfo[i][3] << " \n";
-	cout << "Colors: " << plantStringInfo[i][4] << " \n";
-	cout << "Toxicity: " << plantStringInfo[i][5] << " \n";
-	cout << "Notes: " << plantStringInfo[i][6] << " \n";
-
-
+	std::cout << "Your plants name followed by type, light level, water level, coloring possibilities, toxicity, and general notes.\n";
+	std::cout << "Plant Family: " << plantStringInfo[i][0] << " \n";
+	std::cout << "Plant Type: " << plantStringInfo[i][1] << " \n";
+	std::cout << "Light Level: " << plantStringInfo[i][2] << " \n";
+	std::cout << "Water Level: " << plantStringInfo[i][3] << " \n";
+	std::cout << "Colors: " << plantStringInfo[i][4] << " \n";
+	std::cout << "Toxicity: " << plantStringInfo[i][5] << " \n";
+	std::cout << "Notes: " << plantStringInfo[i][6] << " \n";
 }
+
+// Print every plant record stored in the dataset.
 void Plants::getAllPlants() {
-	cout << "Your plants name followed by type, light level, water level, coloring possibilities, toxicity, and general notes.\n";
-	for (int i = 0; i < 60; i++) // Process for displaying our array #7 Iteration (loops)
-	{
-		for (int j = 0; j < 7; j++) // Process for displaying our array #7 Iteration (loops)
-		{
-			cout << plantStringInfo[i][j] << " " << endl;; // Process for displaying our array
-		}// end for j
-		cout << "\n";
-	} // end for i2
+	std::cout << "Your plants name followed by type, light level, water level, coloring possibilities, toxicity, and general notes.\n";
+	for (int i = 0; i < 60; i++) {
+		for (int j = 0; j < 7; j++) {
+			std::cout << plantStringInfo[i][j] << " " << std::endl;
+		}
+		std::cout << "\n";
+	}
 }
 
-void Plants::getPlantFamily(string userSearch) {
-	for (int i = 0; i < 60; i++) 
-	{
+// Search for a matching plant family name and display its details.
+void Plants::getPlantFamily(std::string userSearch) {
+	for (int i = 0; i < 60; i++) {
 		if (userSearch == plantStringInfo[i][0]) {
-			cout << "Your plants name followed by type, light level, water level, coloring possibilities, toxicity, and general notes.\n";
-			cout << "Plant Family: " << plantStringInfo[i][0] << " \n";
-			cout << "Plant Type: " << plantStringInfo[i][1] << " \n";
-			cout << "Light Level: " << plantStringInfo[i][2] << " \n";
-			cout << "Water Level: " << plantStringInfo[i][3] << " \n";
-			cout << "Colors: " << plantStringInfo[i][4] << " \n";
-			cout << "Toxicity: " << plantStringInfo[i][5] << " \n";
-			cout << "Notes: " << plantStringInfo[i][6] << " \n";
-			cout << "Enter another or 1 to quit.\n";
+			std::cout << "Your plants name followed by type, light level, water level, coloring possibilities, toxicity, and general notes.\n";
+			std::cout << "Plant Family: " << plantStringInfo[i][0] << " \n";
+			std::cout << "Plant Type: " << plantStringInfo[i][1] << " \n";
+			std::cout << "Light Level: " << plantStringInfo[i][2] << " \n";
+			std::cout << "Water Level: " << plantStringInfo[i][3] << " \n";
+			std::cout << "Colors: " << plantStringInfo[i][4] << " \n";
+			std::cout << "Toxicity: " << plantStringInfo[i][5] << " \n";
+			std::cout << "Notes: " << plantStringInfo[i][6] << " \n";
+			std::cout << "Enter another or 1 to quit.\n";
 			break;
 		}
 		else if ((userSearch != plantStringInfo[i][0]) && (i == 59) && (userSearch != "1")) {
-			cout << "Please check input spelling and try again\n";
+			std::cout << "Please check input spelling and try again\n";
 		}
 	}
-
 }
