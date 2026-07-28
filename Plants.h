@@ -1,6 +1,17 @@
 #include <string>
 #include <iostream>
 #include <fstream>
+#include <vector>
+
+struct Plant {
+	std::string name;
+	std::string type;
+	std::string light;
+	std::string water;
+	std::string colors;
+	std::string toxicity;
+	std::string notes;
+};
 
 // Represents the plant lookup system and its data access methods.
 class Plants {
@@ -16,8 +27,10 @@ public:
 	// Search for a plant by family name and show its details.
 	void getPlantFamily(std::string userSearch);
 
+	// Return the number of plants loaded from the data file.
+	int getPlantCount() const;
+
 private:
-	// Stores plant information as 60 records with 7 fields per record.
-	std::string plantStringInfo[60][7];
+	std::vector<Plant> plants;
 	std::ifstream inFS;
 };
