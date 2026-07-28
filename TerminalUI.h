@@ -9,6 +9,7 @@
 #include <string>
 #include <vector>
 
+// Lightweight console UI helpers for rendering menus and plant details.
 namespace TerminalUI {
 	inline constexpr int contentWidth = 76;
 	inline constexpr int textWidth = contentWidth - 2;
@@ -22,10 +23,12 @@ namespace TerminalUI {
 	inline constexpr const char* muted = "\033[38;5;245m";
 	inline constexpr const char* red = "\033[38;5;196m";
 
+	// Clear the console screen and move the cursor to the top-left corner.
 	inline void clearScreen() {
 		std::cout << "\033[2J\033[H";
 	}
 
+	// Draw a simple border line for the current UI panel.
 	inline void printBorder(char fill = '-') {
 		std::cout << green << '+' << std::string(contentWidth, fill) << '+' << reset << '\n';
 	}
@@ -48,6 +51,7 @@ namespace TerminalUI {
 			<< green << '|' << reset << '\n';
 	}
 
+	// Render a title block with an optional subtitle beneath it.
 	inline void printTitle(const std::string& title, const std::string& subtitle = "") {
 		printBorder('=');
 		printCentered(title, brightGreen);
@@ -57,12 +61,14 @@ namespace TerminalUI {
 		printBorder('=');
 	}
 
+	// Render a single menu option in the main navigation list.
 	inline void printMenuOption(const std::string& key, const std::string& label) {
 		std::ostringstream line;
 		line << "  [" << key << "]  " << label;
 		printLine(line.str(), cyan);
 	}
 
+	// Wrap long text so it fits neatly within the console width.
 	inline std::vector<std::string> wrapText(const std::string& text, std::size_t width) {
 		std::vector<std::string> lines;
 		std::istringstream words(text);
@@ -92,6 +98,7 @@ namespace TerminalUI {
 		return lines;
 	}
 
+	// Render a labeled field with wrapped content for long values.
 	inline void printField(const std::string& label, const std::string& value) {
 		constexpr int labelWidth = 12;
 		constexpr int separatorWidth = 2;
@@ -110,6 +117,7 @@ namespace TerminalUI {
 		}
 	}
 
+	// Read a single line of user input with a prompt.
 	inline std::string readLine(const std::string& prompt) {
 		std::cout << gold << prompt << reset;
 		std::string input;
@@ -117,6 +125,7 @@ namespace TerminalUI {
 		return input;
 	}
 
+	// Remove leading and trailing whitespace from a string.
 	inline std::string trim(std::string text) {
 		const auto first = std::find_if_not(text.begin(), text.end(), [](unsigned char character) {
 			return std::isspace(character);
@@ -131,6 +140,7 @@ namespace TerminalUI {
 		return std::string(first, last);
 	}
 
+	// Convert text to lowercase for case-insensitive comparisons.
 	inline std::string lowercase(std::string text) {
 		std::transform(text.begin(), text.end(), text.begin(), [](unsigned char character) {
 			return static_cast<char>(std::tolower(character));
@@ -138,6 +148,7 @@ namespace TerminalUI {
 		return text;
 	}
 
+	// Pause execution until the user presses Enter.
 	inline void pause() {
 		std::cout << '\n' << muted << "Press Enter to return to the menu..." << reset;
 		std::string ignored;
